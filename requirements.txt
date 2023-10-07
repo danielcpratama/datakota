@@ -6,5 +6,4 @@ matplotlib
 streamlit
 streamlit_folium
 fiona
-gcfs
 google-cloud-storage

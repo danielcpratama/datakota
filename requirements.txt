@@ -6,4 +6,4 @@ matplotlib
 streamlit
 streamlit_folium
 fiona
-google-cloud-storage
+gcfs = 2023.9.2

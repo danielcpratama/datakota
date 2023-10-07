@@ -52,7 +52,7 @@ age_list_key = ['U0',
                 'usia_produktif', 
                 'usia_lansia']
 
-job_list_key = list(conn.read("datakota/data/jobs_df.geojson", input_format = 'geojson')).columns)[5:-2]
+job_list_key = list(conn.read("datakota/data/jobs_df.geojson", input_format = 'geojson').columns)[5:-2]
 
 
 

@@ -6,4 +6,4 @@ matplotlib
 streamlit
 streamlit_folium
 fiona
-gcfs == 23.9.2
+gcsfs == 2023.9.2

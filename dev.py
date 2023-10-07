@@ -8,18 +8,14 @@ import folium
 from streamlit_folium import st_folium
 import fiona
 from PIL import Image
+from st_files_connection import FilesConnection
 
 st.set_page_config(layout="wide")
 
 
-# import all dataset
-#base_df = pd.read_csv('data/base_df.csv')
-@st.cache_data
-def load_data(location):
-    base_df = gpd.read_file(location)
-    return base_df
-
-base_df = load_data('https://storage.googleapis.com/datakota/data/base_gdf2.geojson')
+# import base dataset
+conn = st.experimental_connection('gcs', type= FilesConnection)
+base_df = conn.read("datakota/data/base_gdf2.geojson", input_format = 'geojson')
 
 # list of analysis keys
 population_list_key = ['POPULASI', 'JUMLAH_KK', 'LUAS_WILAYAH', 'KEPADATAN']
@@ -55,7 +51,9 @@ age_list_key = ['U0',
                 'usia_sekolah',
                 'usia_produktif', 
                 'usia_lansia']
-job_list_key = list(gpd.read_file('https://storage.googleapis.com/datakota/data/jobs_df.geojson').columns)[5:-2]
+
+job_list_key = list(conn.read("datakota/data/jobs_df.geojson", input_format = 'geojson')).columns)[5:-2]
+
 
 
 with st.sidebar:
@@ -109,8 +107,8 @@ with st.sidebar:
         demo_sub_analysis = st.selectbox('sub-analysis', options=sub_list, key='demographic2')
 
         # import dataset according to selection
-        
-        df_join = pd.read_csv(f'https://storage.googleapis.com/datakota/data/{demo_analysis}_df.csv', usecols= ['KODE_DESA'] + [demo_sub_analysis])
+        df_join = conn.read(f"datakota/data/{demo_analysis}_df.csv", input_format = 'csv')
+        #df_join = pd.read_csv(f'https://storage.googleapis.com/datakota/data/{demo_analysis}_df.csv', usecols= ['KODE_DESA'] + [demo_sub_analysis])
         df_join['KODE_DESA']=df_join['KODE_DESA'].astype(int)
         df = pd.merge(gdf, df_join, how='left', on='KODE_DESA')
 

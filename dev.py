@@ -8,15 +8,37 @@ import folium
 from streamlit_folium import st_folium
 import fiona
 from PIL import Image
-from st_files_connection import FilesConnection
+from google.cloud import storage
+import json
+import os
 
 st.set_page_config(layout="wide")
 
 
-# import base dataset
-conn = st.experimental_connection('gcs', type= FilesConnection)
-base_df = conn.read("datakota/data/base_gdf2.geojson", input_format = 'json')
-base_df = gpd.GeoDataFrame(base_df, geometry = 'geometry')
+# import base geojson, requires about 11 minutes 
+#storage_client = storage.Client.from_service_account_json('pedpedia-d1a0fbf4d7e2.json')
+
+@st.cache_data
+def get_geojson(file_name):
+
+    bucket_name = 'datakota'
+
+    bucket = storage_client.get_bucket(bucket_name)
+    blob = bucket.blob(file_name)
+    # Download the file to a local temporary file
+    with open('temp.geojson', 'wb') as temp_file:
+        blob.download_to_file(temp_file, timeout=900)
+
+    # Read the GeoJSON file using geopandas
+    gdf = gpd.read_file('temp.geojson')
+    # Don't forget to clean up the temporary file
+    os.remove('temp.geojson')
+    return gdf
+
+base_df = get_geojson('data/base_gdf2.geojson')
+
+
+
 
 # list of analysis keys
 population_list_key = ['POPULASI', 'JUMLAH_KK', 'LUAS_WILAYAH', 'KEPADATAN']
@@ -52,9 +74,7 @@ age_list_key = ['U0',
                 'usia_sekolah',
                 'usia_produktif', 
                 'usia_lansia']
-
-job_list_key = list(conn.read("datakota/data/jobs_df.geojson", input_format = 'json').columns)[5:-2]
-
+job_list_key = list(gpd.read_file('https://storage.googleapis.com/datakota/data/jobs_df.geojson').columns)[5:-2]
 
 
 with st.sidebar:
@@ -108,10 +128,28 @@ with st.sidebar:
         demo_sub_analysis = st.selectbox('sub-analysis', options=sub_list, key='demographic2')
 
         # import dataset according to selection
-        df_join = conn.read(f"datakota/data/{demo_analysis}_df.csv", input_format = 'csv')
-        #df_join = pd.read_csv(f'https://storage.googleapis.com/datakota/data/{demo_analysis}_df.csv', usecols= ['KODE_DESA'] + [demo_sub_analysis])
+        @st.cache_data
+        def get_csv(file_name):
+
+            bucket_name = 'datakota'
+
+            bucket = storage_client.get_bucket(bucket_name)
+            blob = bucket.blob(file_name)
+            # Download the file to a local temporary file
+            with open('temp.geojson', 'wb') as temp_file:
+                blob.download_to_file(temp_file, timeout=900)
+
+            # Read the GeoJSON file using geopandas
+            df = pd.read_csv('temp.geojson')
+            # Don't forget to clean up the temporary file
+            os.remove('temp.geojson')
+            return df
+
+        df_join = get_csv(f'data/{demo_analysis}_df.csv')
+        df_join = df_join[['KODE_DESA'] + [demo_sub_analysis]]
         df_join['KODE_DESA']=df_join['KODE_DESA'].astype(int)
         df = pd.merge(gdf, df_join, how='left', on='KODE_DESA')
+        
 
         # Selectbox for demographic normalizer
         normalizer_list = [None, 'Per sqKM', 'Per Total Population']
@@ -121,6 +159,7 @@ with st.sidebar:
         if normalizer == 'Per sqKM':
             df['val'] = df[demo_sub_analysis]/df['LUAS_WILAYAH']
             df['RESULT'] = df['val'].round(2).astype(str) + f' {demo_sub_analysis} {normalizer}'
+            df = df.dropna()
         elif normalizer == 'Per Total Population':
             df['val'] = df[demo_sub_analysis]/df['total']
             df['RESULT'] = df['val'].round(2).astype(str) + f' {demo_sub_analysis} {normalizer}'
@@ -140,8 +179,8 @@ with st.sidebar:
         scheme_select = st.selectbox('schemes', options=scheme_list, key='schemes')
 
 
-
-#st.write(df.sample(5))
+# generate map
+#df = df.drop(df[df.val == None], axis=1)
 map = df.explore(column = df['val'],
                     cmap = color_select,
                     tiles = 'CartoDB positron',
@@ -153,6 +192,7 @@ map = df.explore(column = df['val'],
                                     'weight' : 0.5,
                                     'fillOpacity' : 0.8}, 
                     )
+
 
 st_folium(map, 
         #center = (106.8,-6.8),

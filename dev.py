@@ -16,6 +16,7 @@ st.set_page_config(layout="wide")
 # import base dataset
 conn = st.experimental_connection('gcs', type= FilesConnection)
 base_df = conn.read("datakota/data/base_gdf2.geojson", input_format = 'json')
+base_df = gpd.GeoDataFrame(base_df, geometry = 'geometry')
 
 # list of analysis keys
 population_list_key = ['POPULASI', 'JUMLAH_KK', 'LUAS_WILAYAH', 'KEPADATAN']

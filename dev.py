@@ -16,7 +16,7 @@ st.set_page_config(layout="wide")
 
 
 # import base geojson, requires about 11 minutes 
-#storage_client = storage.Client.from_service_account_json('pedpedia-d1a0fbf4d7e2.json')
+storage_client = storage.Client.from_service_account_json('pedpedia-d1a0fbf4d7e2.json')
 
 @st.cache_data
 def get_geojson(file_name):

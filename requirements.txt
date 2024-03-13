@@ -9,3 +9,11 @@ fiona
 gcsfs == 2023.9.2
 st-files-connection
 mapclassify
+plotly
+plotly.express
+time
+google.cloud
+os
+streamlit_gsheets
+datetime
+PIL

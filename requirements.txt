@@ -11,6 +11,5 @@ st-files-connection
 mapclassify
 plotly 
 google.cloud
-streamlit_gsheets
 datetime
 PIL

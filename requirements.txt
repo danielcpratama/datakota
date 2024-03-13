@@ -8,6 +8,7 @@ streamlit_folium
 fiona
 gcsfs == 2023.9.2
 st-files-connection
+st-gsheets-connection
 mapclassify
 plotly 
 google.cloud

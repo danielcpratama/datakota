@@ -18,4 +18,4 @@ selenium
 geckodriver
 ChromeDriver
 webdriver-manager
-google-chrome
+

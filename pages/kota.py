@@ -62,7 +62,7 @@ def is_pass_inactive(username):
         user_data = eval(blob.download_as_string())
         if "end_time" in user_data:
             end_time = user_data["end_time"]
-            if end_time < datetime.datetime.now():
+            if end_time < (datetime.datetime.now() + datetime.timedelta(hours=7)):
                 st.session_state["end"] = end_time
                 # st.session_state['payment'] = user_data["payment"]
                 return True

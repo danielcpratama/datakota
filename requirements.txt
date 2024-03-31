@@ -16,3 +16,4 @@ datetime
 bcrypt
 selenium
 geckodriver
+ChromeDriver

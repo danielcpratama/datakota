@@ -15,6 +15,12 @@ from io import BytesIO
 import matplotlib.pyplot as plt
 from PIL import Image
 import io
+from selenium import webdriver
+
+# Initialize Chrome WebDriver
+options = webdriver.ChromeOptions()
+options.add_argument('--headless')  # Run headless if needed
+driver = webdriver.Chrome(options=options)
 
 # set page config
 st.set_page_config(

@@ -10,19 +10,28 @@ import os
 from st_files_connection import FilesConnection
 from streamlit_gsheets import GSheetsConnection
 import datetime
+import pages.kota as kota
+from io import BytesIO
+import matplotlib.pyplot as plt
+from PIL import Image
+import io
 
 # set page config
 st.set_page_config(
     page_title="Jobs Analysis",
     layout="wide", 
-    page_icon= "🛠️"
+    page_icon= "🛠️", 
+    initial_sidebar_state='collapsed'
 )
 # ------------------------------------------------------------------------------
 st.image('logo/logo.png', width=80)
 st.title('Jobs Analysis')
+if st.button('< back'):
+    st.switch_page('pages/datakota_explorer.py')
 # ------------------------------------------------------------------------------
 # SET UP SIDE BAR
 with st.sidebar:
+    kota.sign_in()
     st.subheader('Contact us!')
     st.markdown("""
     [twitter](https://twitter.com/danielcaesarp)  
@@ -31,9 +40,7 @@ with st.sidebar:
     [github](https://github.com/danielcpratama/datakota)
 
     """)
-    st.subheader('We are accepting donation!')
-    st.write('you can donate through QRIS below')
-    st.image("logo/QRIS_small.jpg", width=250)
+   
     
 
 # ------------------------------------------------------------------------------
@@ -135,8 +142,6 @@ with col1:
 with col2:
     tab1, tab2, tab3, tab4 = st.tabs(["maps", "charts", "metadata", "downloads"])
     with tab1:
-        # st.write(f'data taken from data/{data}_df.csv')
-        # st.write(f'geom taken from {geom_URL}')
         
         # calling and subsetting geodataframe
         with st.spinner('dicariin dulu ya...'):
@@ -180,8 +185,17 @@ with col2:
 
         # draw map here
         with st.spinner('digambar dulu ya... '):            
+            # map name
+            if normalizer != None: 
+                title = str.title(f'Map of {sub_analysis} {normalizer} distribution, by {unit_analysis} in {city_analysis}, {province_analysis} ')
+                st.markdown(f'##### {title}')
+            else: 
+                title = str.title(f'Map of {sub_analysis} distribution, by {unit_analysis} in {city_analysis}, {province_analysis} ')
+                st.markdown(f'##### {title}')
+
+            cmap = 'plasma'
             map = pivot_gdf.explore(column = pivot_gdf['val'],
-                                cmap = 'plasma',
+                                cmap = cmap,
                                 tiles = 'CartoDB positron',
                                 #tiles = map_tile,
                                 attr = "mapbox",
@@ -190,21 +204,64 @@ with col2:
                                 scheme = 'EqualInterval', 
                                 k = 10, 
                                 highlight = True, 
-                                popup = False,
+                                popup = True,
+                                legend = True,
                                 style_kwds = {'stroke':0.5,
                                                 'color' : 'black',
                                                 'weight' : 0.5,
                                                 'fillOpacity' : 0.8
                                                 }, 
+                                legend_kwds = {'colorbar': False, 'caption': title, 'fmt':'{:,.0f}'}
                                 )
             
+            with st.container(border=True, height= 550):
+                st_folium(map, 
+                    #center = (106.8,-6.8),
+                    returned_objects= [],
+                    #width= 1000, 
+                    height = 500, 
+                    use_container_width=True
+                    )
+            # MAKING LEGENDS
+            # Create a separate plot just for the legend
+            legend_fig, legend_ax = plt.subplots(figsize=(50, 3))  # Adjust figsize as needed
             
-            st_folium(map, 
-                #center = (106.8,-6.8),
-                returned_objects= [],
-                width= 1000, 
-                height = 600, 
-                )
+            pivot_gdf.plot(ax=legend_ax, column='val', cmap=cmap, legend=True, 
+                           legend_kwds = {'orientation':'horizontal', 'fmt':'{:,.0f}'}, )
+            
+            #legend_ax.legend(loc= 'lower right')
+            legend_ax.clear()
+            legend_ax.axis('off')  # Turn off axis
+
+            # Save the legend plot as a PNG image
+            legend_png = BytesIO()
+            legend_fig.savefig(legend_png, format='png', bbox_inches = 'tight', dpi = 150)
+            plt.close(legend_fig)
+
+            # Load the legend PNG image from BytesIO
+            legend_png.seek(0)
+            img = Image.open(legend_png)
+
+            # Define the cropping parameters
+            left = 0
+            top = 300  # Adjust this value as needed to crop from the top
+            right = img.width
+            bottom = img.height
+
+            # Crop the image
+            cropped_img = img.crop((left, top, right, bottom))
+
+            # Convert the cropped image back to BytesIO
+            cropped_png = io.BytesIO()
+            cropped_img.save(cropped_png, format='PNG')
+
+            col1, col2 = st.columns([0.3,0.7])
+            with col1:
+                st.download_button('Download Map', data=map._to_png(), file_name=f'{title}.png', mime='png')
+            with col2:
+                st.image(cropped_png,  use_column_width=True) #caption='Legend',
+
+           
 
     with tab2: 
         with st.container(height=600, border=True):
@@ -267,94 +324,19 @@ with col2:
         st.dataframe(meta_df)
         
     with tab4: 
-        # establish connection with GSHEETS
-        conn_gsheets = st.connection("gsheets", type=GSheetsConnection)
-        existing_data = conn_gsheets.read(worksheet='download', usecols = list(range(11)),ttl=5)
-        
-        # generate downloadable dataframe
+         # generate downloadable dataframe
         download_df = pivot_gdf[place + [ sub_analysis, 'RESULT',  'LUAS_SQKM']]
         download_gdf = pivot_gdf[place + [ sub_analysis, 'RESULT',  'LUAS_SQKM', 'geometry']]
-        @st.cache_data
-        def convert_df(_dataframe):
-            # IMPORTANT: Cache the conversion to prevent computation on every rerun
-            return _dataframe.to_csv().encode('utf-8')
-
-        csv = convert_df(download_df)
-
-        # download forms
-        st.subheader(f"Download Forms")
-        with st.form(key='download_form'):
-            colA, colB = st.columns([0.4,0.6])
-            with colA:
-                # QRIS
-                st.write(f'scan QRIS and pay IDR {len(download_df)*200:,}')
-                st.image('logo/QRIS_small.jpg', width = 300)
-            with colB:
-                # data preview
-                st.write('Preview of randomly sampled data:')
-                st.dataframe(download_df.sample(5, random_state=911))
-                st.write(f'you will download {len(download_df)} rows of data')
-
-            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            email = st.text_input(label="email address*")
-            phone = st.text_input(label="phone number")
-            ref_no = st.text_input(label="last four digit of QRIS payment reference number*", max_chars=4)
-
-            st.caption("** mandatory field")
-            st.caption("you will receive a Download Key after we confirm your payment")
-
-            submit_button = st.form_submit_button('Submit my payment!')
-
-        # confirming payment
-        pass_num = download_df[sub_analysis].max().astype(int)
-        paid = True
-        # generate new dataframe to upload to google sheets
-        download_form_data = pd.DataFrame([{"timestamp" : timestamp,
-                                            "email" : email,
-                                            "phone" : phone, 
-                                            "ref_no" : ref_no,
-                                            "extent_analysis" : extent_analysis,
-                                            "unit_analysis" : unit_analysis,
-                                            "province_analysis" : province_analysis,
-                                            "city_analysis" : city_analysis,
-                                            "sub_analysis" : sub_analysis,
-                                            "normalizer" : normalizer,
-                                            "price" : len(download_df)*200
-                                            }])
-
-        if submit_button:
-            if not email or not ref_no:
-                st.warning("please fill out all mandatory field")
-                st.stop()
-            else:
-                
-                # update google sheets
-                updated_df = pd.concat([existing_data, download_form_data])
-                conn_gsheets.update(worksheet='download', data=updated_df)
-                with st.spinner('Confirming your payment...'):
-                    time.sleep(10)
-                    st.success("your payment is confirmed")
-                    st.write(f'download key is {st.secrets.DOWNLOAD_PASSWORD}_{pass_num}')
-                
-                # generating download password
-        
-        
-        # fill out download key
-        data_container = st.empty()
-        data_pwd = data_container.text_input(
-        f"insert download key here", type='password')
-        if data_pwd == f"{st.secrets.DOWNLOAD_PASSWORD}_{pass_num}":
-            st.success('you can download using buttons below')    
-            paid = False
-        else:
-            st.warning("Wrong password!")
         
         # download buttons
+        st.write('preview dataset:')
+        st.write(download_df.head(5))
+
+
         st.download_button(
                 label=f"Download CSV",
-                data=csv,
+                data=download_df.to_csv(),
                 file_name=f'{city_analysis}_{province_analysis}_{sub_analysis}.csv',
-                disabled= paid,
                 mime='text/csv',
             )
         
@@ -362,7 +344,6 @@ with col2:
                 label=f"Download GeoJSON",
                 data=download_gdf.to_json(),
                 file_name=f'{city_analysis}_{province_analysis}_{sub_analysis}.geojson',
-                disabled= paid,
                 )
 # ---------------------------------------
 st.caption('First time initializing might take a couple minutes, Press "R" to reload/refresh')

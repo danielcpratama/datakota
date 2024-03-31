@@ -2,6 +2,10 @@
 # import libraries
 import streamlit as st
 from PIL import Image
+from google.cloud import storage
+import bcrypt
+import datetime
+from google.cloud import storage
 
 
 # set page config
@@ -9,10 +13,11 @@ st.set_page_config(
     page_title="Home",
     layout="centered", 
     page_icon= ":house:", 
-    menu_items= {'About':'Made by Daniel Caesar Pratama'}
+    menu_items= {'About':'Made by Daniel Caesar Pratama'}, 
+    initial_sidebar_state= "collapsed"
 )
 # ------------------------------------------------------------------------------
-# SET UP SIDE BAR
+# SET UP SIDEBAR
 with st.sidebar:
     st.subheader('Contact us!')
     st.markdown("""
@@ -22,9 +27,7 @@ with st.sidebar:
     [github](https://github.com/danielcpratama/datakota)
 
     """)
-    st.subheader('We are accepting donation!')
-    st.write('you can donate through QRIS below')
-    st.image("logo/QRIS_small.jpg", width=250)
+
     
 
 
@@ -32,105 +35,150 @@ with st.sidebar:
 # SET UP TITLE 
 st.image('logo/logo.png')
 st.title("Datakota")
-st.subheader("Geospatial Insights of Indonesian Cities")
-st.write("Datakota is your one-stop solution for integrated and granular geospatial data, backed by powerful no-code analytics tools, and intuitive spatial data visualization.")
+st.subheader("Spatial Insights of Indonesian Cities")
+st.write("Our curated spatial datasets and user-friendly analytic tools help businesses identify growth opportunities, optimize operations, and stay ahead of the competition.")
+col_A, col_B = st.columns([1,2])
+with col_A:
+    if st.button('try datakota.explorer today', type='primary', use_container_width=True):
+        st.switch_page("pages/datakota_explorer.py")
+with col_B:
+    st.caption('or scroll down to see our [other products](#our-products)')    
+
 
 # ------------------------------------------------------------------------------
-# HERO
-
+# Hero
 st.image("logo/hero.png", use_column_width=True)
-st.subheader("start unlocking geospatial insights for free")
-st.write('click one of the analysis options below')
+# ------------------------------------------------------------------------------
+# Introducing datakota.explorer
+with st.container(border=False):
+    st.subheader('Introducing datakota.explorer')
+    st.markdown("""
+                Explore demographic insights visualized spatially:  
+                age, jobs, religion, education level, gender, marital status, and more.
+                """)
+    col1, col2, col3 = st.columns([1,1,1])
+    with col1:
+        with st.container(border=True, height=280):
+            st.markdown('##### Comprehensive ')
+            st.image('logo/comprehensive.png')
+            st.markdown('We provide a wide selection of variables gathered from various sources')
+        
+    with col2:
+        with st.container(border=True, height=280):
+            st.markdown('##### Granular ')
+            st.image('logo/granular.png')        
+            st.markdown('We cover every nook & cranny of Indonesia up to Kelurahan level')
+        
+    with col3: 
+        with st.container(border=True, height=280):
+            st.markdown('##### Intuitive ')
+            st.image('logo/intuitive.png')
+            st.markdown('Get insights quickly with our interactive maps & charts')
 
-col1, col2, col3 = st.columns([1,1,1])
-with col1:
-    with st.container(border=True):
-        st.page_link("pages/1_👥_Population_Analysis.py", label= "population analysis", icon= "👥")
-    with st.container( border=True):
-        st.page_link("pages/2_🎓_Education_Analysis.py", label= "education analysis", icon= "🎓")
-with col2:
-    with st.container(border=True):
-        st.page_link("pages/3_👶_Age_Analysis.py", label= "age analysis", icon= "👶")
-    with st.container(border=True):
-        st.page_link("pages/4_🕉️_Religion_Analysis.py", label= "religion analysis", icon= "🕉️")
-with col3:
-    with st.container(border=True):
-        st.page_link("pages/5_👫🏻_Sex_Marriage_Analysis.py", label= "sex & marriage status", icon= "👫🏻")
-    with st.container(border=True):
-        st.page_link("pages/6_🛠️_Jobs_Analysis.py", label= "jobs analysis", icon= "🛠️")
+    st.subheader('what they say about datakota.explorer')    
+
+    st.markdown("👨🏽‍🦲      _datakota is cleaner & easier to use than government GIS geoportal!_ - twitter user")
+    st.markdown("👧🏻      _datakota helped narrow down my research on informal economy!_ - Ms. KF")
+    st.markdown("🙆🏽‍♂️      _I work in baby-care industry, and datakota helped me discover market potential in my province_ - Mr. FRB")
+    st.markdown("""
+    
+    
+
+    """)
+if st.button('try datakota.explorer today', type='primary', use_container_width=False, key='trynow'):
+        st.switch_page("pages/datakota_explorer.py")
+st.markdown("""
+    
+    
+
+    """)
+# ------------------------------------------------------------------------------
+# Product page
+st.subheader('More Analytics Are Coming Soon', divider='grey', anchor='our-products')
+
+col_l, col_r = st.columns([1,1])
+# datakota.explorer
+
+# datakota.retail
+with col_l:
+    with st.container(border=True, height=470):
+        st.image("logo/kopi.png", use_column_width=True)
+        st.subheader('🏪 datakota.retail', divider='grey')
+        st.markdown("""
+__Find the best location for your next restaurant, cafe, minimart and more using our location analysis tool__  
+""")
+        with st.expander("learn more:"):
+            st.markdown("""
+- Identify customer demographic profile within a catchment area  
+- Analyse nearby competitors  
+- Understand your location accessibility
+""") 
+        col_x, col_y = st.columns([1,1])
+        with col_y:
+            st.link_button('join waitlist',url='https://forms.gle/US1WirXFj5UNBx5GA', type='primary', use_container_width=True)
+
+# datakota.housing
+with col_r:
+    with st.container(border=True, height=470):
+        st.image("logo/house.png", use_column_width=True)
+        st.subheader('🏠 datakota.housing', divider='grey')    
+        st.markdown("""
+__buying a house is likely your biggest purchase-of-a-lifetime, don't choose the wrong location__  
+ 
+""")
+        with st.expander("learn more:"):
+            st.markdown("""                    
+- compare comparable housing price in several locations 
+- estimate living cost in the area  
+- check disaster history
+- check access to public transportation, school, healthcare, and parks
+- check access to public service, i.e., water, electricity, internet                      
+""")
+        col_x, col_y = st.columns([1,1])
+        with col_y:
+            st.link_button('join waitlist', url= 'https://forms.gle/US1WirXFj5UNBx5GA', type='primary', use_container_width=True)
+
+# datakota.enterprise
+
+with st.container(border=True, height=540):
+    st.image("logo/enterprise.png", use_column_width=True)
+    st.subheader('💼 datakota.enterprise', divider='grey')
+    st.markdown("""
+__Customized spatial platform for your unique enterprise needs, from location intelligence, predictive analysis, and map visualization__  
+
+""")
+    with st.expander("explore sectoral potential:"):
+        st.markdown("""
+- real estate market assessment  
+- healthcare analytics and facility planning  
+- supply chain optimization through network analysis 
+- geomarketing                        
+""")
+    col_x, col_y = st.columns([1,1])
+    with col_y:
+        st.link_button("let's talk", url = 'https://forms.gle/US1WirXFj5UNBx5GA', type='primary', use_container_width=True)
+
 
 # ------------------------------------------------------------------------------
-# USE CASE
+# Footer
 st.divider()
-st.subheader('Potential Use Cases')
+st.subheader('Support Us!')
+colA, colB = st.columns([2,1])
+with colA:
+    st.markdown('''
+                - we are accepting donation through QRIS payment!  
+                - contribute a high quality dataset that you'd like the public to see! send us an email  
+                - follow us on social media & let us know how we are doing!  
+                ''')
+    st.markdown("""
+          
+          
+                
+        [twitter](https://twitter.com/danielcaesarp) | [instagram](https://instagram.com/datakota.app)  | [email](hi.datakota@gmail.com)  | [github](https://github.com/danielcpratama/datakota)
 
-colA, colB = st.columns([1,1])
-with colA: 
-#st.markdown('###### Public Sector')
-    with st.expander('Urban Planning'):
-        st.markdown(
-            """Utilize demographic datasets for informed urban planning decisions. 
-            Analyze population size, density, age composition, and employment data 
-            to optimize infrastructure projects and resource allocation."""
-        )
-    with st.expander('Public Health'):
-        st.markdown(
-            """Leverage demographic data to address health disparities. 
-            Utilize age, gender, and education data to develop targeted interventions and improve public health outcomes."""
-        )
+        """)
+    st.caption('&copy;datakota | datakota is a solo venture by Daniel Caesar Pratama')
 
-
-    #st.markdown('###### Private Sector')
-    with st.expander('Retail Site Selection'):
-        st.markdown(
-            """Optimize retail location decisions using demographic insights. 
-            Analyze population characteristics, income levels, and employment data 
-            to identify prime retail locations and attract target customers."""
-        )
-with colB: 
-    with st.expander('Real Estate Market Analysis'):
-        st.markdown(
-            """Enhance real estate market insights with demographic data. 
-            Incorporate age, education, and income demographics 
-            to identify market trends and make informed investment decisions."""
-        )
-
-    # with colC: 
-    # st.markdown('###### Academics')
-    with st.expander('Social Science Research'):
-        st.markdown(
-            """Drive social research with demographic datasets. 
-            Utilize age, gender, education, and income data 
-            to explore migration patterns, household structures, and social disparities."""
-        )
-    with st.expander('Geographic Studies'):
-        st.markdown(
-            """Enhance geographic analyses with demographic insights. 
-            Incorporate population density, age distribution, and employment data 
-            to understand spatial population dynamics and urbanization trends."""
-        )
-
-# FAQ
-st.divider()
-st.subheader('FAQ')
-
-with st.expander("Why choose datakota?"):
-    st.write('We have prepared the analysis for you, so you can get to data-driven decision faster. Our platform offers a vast repository of geospatial data, covering every nook and cranny of Indonesia, up to kelurahan level.')
-
-with st.expander("Who is datakota for?"):
-    st.markdown(
-        """
-    Datakota is built for data-driven decision makers like you
-
-    - Consultants & Researchers
-    - City Governments
-    - Business & Property Developers
-"""
-    )
-
-st.subheader('Disclaimer')
-st.write('-- First time initializing might take a couple minutes')
-st.write('-- We are a small startup! Consider purchasing dataset to support our business')
-st.write('-- If you have querys please send email to hi.datakota@gmail.com')
-
+with colB:
+    st.image("logo/QRIS_small.jpg", width=200)
 

@@ -79,7 +79,7 @@ def log_login(username):
         user_data = eval(blob.download_as_string())
         st.session_state["role"] = user_data["role"]
     updated_data = pd.DataFrame([{
-                        "timestamp" : datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        "timestamp" : (datetime.datetime.now()+ datetime.timedelta(hours=7)).strftime("%Y-%m-%d %H:%M:%S"),
                         "username" : st.session_state['username'],
                         "role" : st.session_state["role"],
                         "payment" : st.session_state['payment'],
@@ -175,7 +175,7 @@ def sign_in():
                         if st.button('submit payment & sign in', key='paid_signin'):
                             if verify_password(username, password):
                                 # Update session state
-                                current_time = datetime.datetime.now()
+                                current_time = datetime.datetime.now() + datetime.timedelta(hours=7)
                                 start_time = current_time
                                 end_time = (current_time + datetime.timedelta(days=1)) if st.session_state["payment"] == "Daily pass @IDR 25.000" else (current_time + datetime.timedelta(days=7))
                                 blob = bucket.blob(f"users/{username}.json")

@@ -16,11 +16,18 @@ import matplotlib.pyplot as plt
 from PIL import Image
 import io
 from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.firefox import GeckoDriverManager
 
-# Initialize Chrome WebDriver
-options = webdriver.ChromeOptions()
-options.add_argument('--headless')  # Run headless if needed
-driver = webdriver.Chrome(options=options)
+# Initialize WebDriver based on the browser
+browser = 'chrome'  # Set the desired browser (e.g., 'chrome', 'firefox')
+
+if browser == 'chrome':
+    driver = webdriver.Chrome(ChromeDriverManager().install())
+elif browser == 'firefox':
+    driver = webdriver.Firefox(executable_path=GeckoDriverManager().install())
+else:
+    raise ValueError("Invalid browser specified")
 
 # set page config
 st.set_page_config(

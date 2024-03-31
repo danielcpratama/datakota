@@ -16,18 +16,7 @@ import matplotlib.pyplot as plt
 from PIL import Image
 import io
 from selenium import webdriver
-from webdriver_manager.chrome import ChromeDriverManager
-from webdriver_manager.firefox import GeckoDriverManager
 
-# Initialize WebDriver based on the browser
-browser = 'chrome'  # Set the desired browser (e.g., 'chrome', 'firefox')
-
-if browser == 'chrome':
-    driver = webdriver.Chrome(ChromeDriverManager().install())
-elif browser == 'firefox':
-    driver = webdriver.Firefox(executable_path=GeckoDriverManager().install())
-else:
-    raise ValueError("Invalid browser specified")
 
 # set page config
 st.set_page_config(
@@ -269,7 +258,7 @@ with col2:
 
             col1, col2 = st.columns([0.3,0.7])
             with col1:
-                st.download_button('Download Map', data=map._to_png(), file_name=f'{title}.png', mime='png')
+                #st.download_button('Download Map', data=map._to_png(), file_name=f'{title}.png', mime='png')
             with col2:
                 st.image(cropped_png,  use_column_width=True) #caption='Legend',
 

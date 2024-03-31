@@ -13,4 +13,5 @@ mapclassify
 plotly 
 google.cloud
 datetime
-
+bcrypt
+selenium

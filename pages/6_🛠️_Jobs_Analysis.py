@@ -256,8 +256,8 @@ with col2:
             cropped_img.save(cropped_png, format='PNG')
 
             col1, col2 = st.columns([0.3,0.7])
-            with col1:
-                st.download_button('Download Map', data=map._to_png(), file_name=f'{title}.png', mime='png')
+            #with col1:
+                #st.download_button('Download Map', data=map._to_png(), file_name=f'{title}.png', mime='png')
             with col2:
                 st.image(cropped_png,  use_column_width=True) #caption='Legend',
 

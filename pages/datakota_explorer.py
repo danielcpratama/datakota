@@ -64,12 +64,12 @@ with col1:
 with col2: 
     with st.container(border=True, height=420):
         st.image('logo/daily.png')
-        st.markdown('##### daily pass @IDR25k')
+        st.markdown('##### daily pass @IDR15k')
         st.markdown('make data-driven decisions today at a price of a coffee to get insights from all over Indonesia—empowering you to seize opportunities and stay ahead')
 with col3: 
     with st.container(border=True, height=420):
         st.image('logo/weekly.png')
-        st.markdown('##### weekly pass @IDR80k')
+        st.markdown('##### weekly pass @IDR50k')
         st.markdown('Dive deep into your research and analysis with a full week of uninterrupted access—unlocking the insights you need to fuel innovation')
 
 # ------------------------------------------------------------------------------

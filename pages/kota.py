@@ -168,7 +168,7 @@ def sign_in():
                     # if username is not entitled to a free pass:
                     else:
                         st.info("You don't have an active pass. Please buy a pass")
-                        st.session_state["payment"] = st.selectbox("Choose your pass*", ["Daily pass @IDR 25.000", "Weekly pass @IDR 80.000"], placeholder="Pick one")
+                        st.session_state["payment"] = st.selectbox("Choose your pass*", ["Daily pass @IDR 15.000", "Weekly pass @IDR 50.000"], placeholder="Pick one")
                         st.write(f'scan QRIS and pay {st.session_state["payment"]}')
                         st.image('logo/QRIS_small.jpg', width=200)
                         st.text_input('last four digits of your QRIS payment reference number', max_chars=4)
@@ -177,7 +177,7 @@ def sign_in():
                                 # Update session state
                                 current_time = datetime.datetime.now() + datetime.timedelta(hours=7)
                                 start_time = current_time
-                                end_time = (current_time + datetime.timedelta(days=1)) if st.session_state["payment"] == "Daily pass @IDR 25.000" else (current_time + datetime.timedelta(days=7))
+                                end_time = (current_time + datetime.timedelta(days=1)) if st.session_state["payment"] == "Daily pass @IDR 15.000" else (current_time + datetime.timedelta(days=7))
                                 blob = bucket.blob(f"users/{username}.json")
                                 if blob.exists():
                                     user_data = eval(blob.download_as_string())

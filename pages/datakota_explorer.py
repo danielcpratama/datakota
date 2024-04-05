@@ -79,7 +79,7 @@ st.write('Population analysis is free for you to try! __Sign in__ to unlock more
 
 col1, col2, col3 = st.columns([1,1,1])
 with col1:
-    if st.button("👥 population [FREE TRY!]", use_container_width=True, disabled=False, 
+    if st.button("👥 population [FREE TRY!]", use_container_width=True, disabled=False, type = 'primary', 
                  help="population, household, and density"):
         st.switch_page("pages/1_👥_Population_Analysis.py")
     if st.button( "🎓 education analysis", use_container_width=True, disabled=st.session_state["disabled_status"],

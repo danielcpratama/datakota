@@ -1,6 +1,6 @@
 ﻿pandas == 2.2.1
 geopandas
-numpy
+numpy == 2.2.0
 folium
 matplotlib
 streamlit

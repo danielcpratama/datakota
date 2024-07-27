@@ -9,6 +9,7 @@ fiona
 gcsfs == 2023.9.2
 st-files-connection
 st-gsheets-connection
+streamlit_gsheets
 mapclassify
 plotly 
 google.cloud

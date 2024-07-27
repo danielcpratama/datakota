@@ -8,7 +8,7 @@ import time
 from google.cloud import storage
 import os
 from st_files_connection import FilesConnection
-from streamlit_gsheets import GSheetsConnection
+# from streamlit_gsheets import GSheetsConnection
 import datetime
 import pages.kota as kota
 from io import BytesIO

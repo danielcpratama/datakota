@@ -131,7 +131,7 @@ def sign_in():
                             st.session_state["disabled_status"] = False
                             
                         # Log Login
-                        log_login(username)
+                        # log_login(username)
                         # success
                         st.success("Sign in successful!")
                     else: 
@@ -159,7 +159,7 @@ def sign_in():
                                     st.session_state["role"] = user_data['role']
                                     st.session_state["disabled_status"] = False
                                 # Log Login
-                                log_login(username)
+                                # log_login(username)
                                 # success
                                 st.success("Sign in successful!")
                             else: 
@@ -191,7 +191,7 @@ def sign_in():
                                     st.session_state["disabled_status"] = False
                                 
                                 # Log Login
-                                log_login(username)
+                                # log_login(username)
                                 # success
                                 with st.spinner('confirming your payment'):
                                     time.sleep(5)

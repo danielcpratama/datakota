@@ -70,25 +70,25 @@ def is_pass_inactive(username):
                 return False
 
 
-def log_login(username):
-    """log session to google sheets for tracking"""
-    conn_gsheets = st.connection("gsheets", type=GSheetsConnection)
-    existing_data = conn_gsheets.read(worksheet='signin', usecols = list(range(7)),ttl=5)
-    blob = bucket.blob(f"users/{username}.json")
-    if blob.exists():
-        user_data = eval(blob.download_as_string())
-        st.session_state["role"] = user_data["role"]
-    updated_data = pd.DataFrame([{
-                        "timestamp" : (datetime.datetime.now()+ datetime.timedelta(hours=7)).strftime("%Y-%m-%d %H:%M:%S"),
-                        "username" : st.session_state['username'],
-                        "role" : st.session_state["role"],
-                        "payment" : st.session_state['payment'],
-                        "start" : st.session_state['start'],
-                        "end" : st.session_state['end']
+# def log_login(username):
+#     """log session to google sheets for tracking"""
+#     conn_gsheets = st.connection("gsheets", type=GSheetsConnection)
+#     existing_data = conn_gsheets.read(worksheet='signin', usecols = list(range(7)),ttl=5)
+#     blob = bucket.blob(f"users/{username}.json")
+#     if blob.exists():
+#         user_data = eval(blob.download_as_string())
+#         st.session_state["role"] = user_data["role"]
+#     updated_data = pd.DataFrame([{
+#                         "timestamp" : (datetime.datetime.now()+ datetime.timedelta(hours=7)).strftime("%Y-%m-%d %H:%M:%S"),
+#                         "username" : st.session_state['username'],
+#                         "role" : st.session_state["role"],
+#                         "payment" : st.session_state['payment'],
+#                         "start" : st.session_state['start'],
+#                         "end" : st.session_state['end']
                             
-                            }])
-    updated_df = pd.concat([existing_data, updated_data])
-    conn_gsheets.update(worksheet='signin', data=updated_df)
+#                             }])
+#     updated_df = pd.concat([existing_data, updated_data])
+#     conn_gsheets.update(worksheet='signin', data=updated_df)
 
 
 # ------SIGN IN NEW----------------------------------------------------------------------------------------------------------------
